@@ -13,6 +13,12 @@ export const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Please fill in all fields." });
     }
 
+    if (password.length < 8) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 8 characters long." });
+    }
+
     if (password !== confirmPassword) {
       return res.status(400).json({ error: "Passwords do not match." });
     }
