@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import useAuth, { REFRESH_THRESHOLD } from "./hooks/useAuth";
 import { LoaderCircle } from "lucide-react";
 import { isRefreshTokenExpired } from "./utils/refreshAccessToken";
+import NotFoundPage from "./pages/404page";
 
 function App() {
   const { getAuthUser, logout } = useAuth();
@@ -57,6 +58,7 @@ function App() {
             path="/login"
             element={authUser ? <Navigate to={"/"} /> : <Login />}
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
       <Toaster position="top-center" richColors />
