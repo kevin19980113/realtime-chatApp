@@ -3,18 +3,27 @@ import GenderCheckbox from "../components/GenderCheckbox";
 import { useForm } from "react-hook-form";
 import { signupSchema, signupSchemaType } from "../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useAuth from "../hooks/useAuth";
 
 const SignUp = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
+    reset,
   } = useForm<signupSchemaType>({
     resolver: zodResolver(signupSchema),
   });
 
+  const { signup } = useAuth();
+  const { mutate: signupMutate, isPending } = signup;
+
   const handleSignUp = async (signupData: signupSchemaType) => {
-    console.log("Signup Data:", signupData);
+    signupMutate(signupData, {
+      onSuccess: () => {
+        reset();
+      },
+    });
   };
 
   return (
@@ -32,11 +41,11 @@ const SignUp = () => {
             <input
               {...register("fullName")}
               type="text"
-              placeholder="John Doe"
+              placeholder="HYUNHO LEE"
               className={`w-full input h-10 ${
                 errors.fullName ? "input-error" : "input-bordered"
               }`}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.fullName && (
               <p className="text-red-600 mt-2 ml-2">
@@ -52,11 +61,11 @@ const SignUp = () => {
             <input
               {...register("username")}
               type="text"
-              placeholder="johndoe"
+              placeholder="hyunho1234"
               className={`w-full input h-10 ${
                 errors.username ? "input-error" : "input-bordered"
               }`}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.username && (
               <p className="text-red-600 mt-2 ml-2">
@@ -76,7 +85,7 @@ const SignUp = () => {
               className={`w-full input h-10 ${
                 errors.password ? "input-error" : "input-bordered"
               }`}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.password && (
               <p className="text-red-600 mt-2 ml-2">
@@ -96,7 +105,7 @@ const SignUp = () => {
               className={`w-full input h-10 ${
                 errors.confirmPassword ? "input-error" : "input-bordered"
               }`}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.confirmPassword && (
               <p className="text-red-600 mt-2 ml-2">
@@ -119,9 +128,9 @@ const SignUp = () => {
           <div>
             <button
               className="btn btn-block btn-sm mt-2 border border-slate-700"
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              Sign Up
+              {isPending ? "Signing up..." : "Sign Up"}
             </button>
           </div>
         </form>

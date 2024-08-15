@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma";
 import bcryptjs from "bcryptjs";
-import generateToken from "../utils/generateToken";
 import jwt from "jsonwebtoken";
 import { DecodedToken } from "../middleware/protectRoute";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateToken";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -43,14 +46,7 @@ export const signup = async (req: Request, res: Response) => {
         profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
       },
     });
-    if (newUser) {
-      return res.status(201).json({
-        id: newUser.id,
-        fullName: newUser.fullName,
-        username: newUser.username,
-        profilePic: newUser.profilePic,
-      });
-    }
+    if (newUser) return res.status(201).json({ message: "Signup Successful" });
 
     res.status(400).json({ error: "Invalid User data" });
   } catch (error: any) {
@@ -70,12 +66,11 @@ export const login = async (req: Request, res: Response) => {
 
     if (!isMatch) return res.status(400).json({ error: "Invalid password" });
 
-    const accessToken = await generateToken(user.id, res);
+    const accessToken = await generateAccessToken(user.id, res);
+    await generateRefreshToken(user.id, res);
+
     res.status(200).json({
-      id: user.id,
       fullName: user.fullName,
-      username: user.username,
-      profilePic: user.profilePic,
       accessToken,
     });
   } catch (error: any) {
@@ -114,7 +109,7 @@ export const logout = async (req: Request, res: Response) => {
       sameSite: "strict",
     });
 
-    return res.status(200).json({ username: user.username });
+    return res.status(200).json({ fullName: user.fullName });
   } catch (error: any) {
     console.log("Error in Logout Controller:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -141,7 +136,7 @@ export const refresh = async (req: Request, res: Response) => {
         if (err || decodedToken.userId !== user.id)
           return res.status(401).json({ error: "Invalid JWT Token" });
 
-        const newAccessToken = await generateToken(user.id, res);
+        const newAccessToken = await generateAccessToken(user.id, res);
 
         return res.status(200).json({ accessToken: newAccessToken });
       }
@@ -165,6 +160,7 @@ export const getMe = async (req: Request, res: Response) => {
       fullName: user.fullName,
       username: user.username,
       profilePic: user.profilePic,
+      gender: user.gender,
     });
   } catch (error: any) {
     console.log("Error in GetMe Controller:", error.message);

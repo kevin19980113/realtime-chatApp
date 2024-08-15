@@ -2,18 +2,22 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { loginSchema, loginSchemaType } from "../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useAuth from "../hooks/useAuth";
 
 const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<loginSchemaType>({
     resolver: zodResolver(loginSchema),
   });
 
+  const { login } = useAuth();
+  const { mutate: loginMutate, isPending } = login;
+
   const handleLogin = async (loginData: loginSchemaType) => {
-    console.log("Login Data:", loginData);
+    loginMutate(loginData);
   };
   return (
     <div className="flex flex-col items-center justify-center min-w-[300px] sm:min-w-[400px] mx-auto">
@@ -35,7 +39,7 @@ const Login = () => {
               className={`w-full input h-10 ${
                 errors.username ? "input-error" : "input-bordered"
               }  `}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.username && (
               <p className="text-red-600 mt-2 ml-2">
@@ -55,7 +59,7 @@ const Login = () => {
               className={`w-full input h-10 ${
                 errors.password ? "input-error" : "input-bordered"
               }`}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors.password && (
               <p className="text-red-600 mt-2 ml-2">
@@ -71,11 +75,8 @@ const Login = () => {
           </Link>
 
           <div>
-            <button
-              className="btn btn-block btn-sm mt-2"
-              disabled={isSubmitting}
-            >
-              Login
+            <button className="btn btn-block btn-sm mt-2" disabled={isPending}>
+              {isPending ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
