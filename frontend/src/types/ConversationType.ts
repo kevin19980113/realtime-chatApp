@@ -9,4 +9,5 @@ export type MessageType = {
   body: string;
   senderId: string;
   createdAt: string;
+  isNew?: boolean;
 };

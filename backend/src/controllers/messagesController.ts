@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma";
+import { getReveiverSocketId, io } from "../socket/socket";
 
 export const sendMessage = async (req: Request, res: Response) => {
   try {
@@ -48,7 +49,13 @@ export const sendMessage = async (req: Request, res: Response) => {
         },
       });
     }
-    // socket io will go here
+    const receiverSocketId = getReveiverSocketId(receiverId);
+
+    // if it's not undeifined, that means the receiver is online
+    // then emit event which has new message to the receiver's socket
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error: any) {

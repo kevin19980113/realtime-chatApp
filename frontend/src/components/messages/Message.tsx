@@ -20,7 +20,11 @@ const Message = ({ message }: { message: MessageType }) => {
           <img alt="Tailwind CSS chat bubble component" src={img} />
         </div>
       </div>
-      <p className={`chat-bubble text-white ${bubbleBg} text-sm md:text-md`}>
+      <p
+        className={`chat-bubble text-white ${bubbleBg} text-sm md:text-md ${
+          message?.isNew && "shake"
+        }`}
+      >
         {message?.body}
       </p>
       <span className="chat-footer opacity-50 text-xs flex gap-1 items-center text-white">

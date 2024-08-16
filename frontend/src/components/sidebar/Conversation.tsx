@@ -1,12 +1,14 @@
 import { Fragment } from "react";
 import { ConversationType } from "../../types/ConversationType";
 import useConversation from "../../hooks/useConversations";
+import { useSocketContext } from "../../context/SocketContext";
 
 const Conversation = ({ conversation }: { conversation: ConversationType }) => {
   const { setSelectedConversation, selectedConversation } = useConversation();
   const isSelected = conversation.id === selectedConversation?.id;
 
-  const isOnline = false;
+  const { onlineUsers } = useSocketContext();
+  const isOnline = onlineUsers.includes(conversation.id);
 
   return (
     <Fragment>
