@@ -5,9 +5,9 @@ import {
   logout,
   refresh,
   signup,
-} from "../controllers/authController";
-import protectRoute from "../middleware/protectRoute";
-import loginLimiter from "../middleware/loginLimiter";
+} from "../controllers/authController.js";
+import protectRoute from "../middleware/protectRoute.js";
+import loginLimiter from "../middleware/loginLimiter.js";
 
 const authRoutes = express.Router();
 

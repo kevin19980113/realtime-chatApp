@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
-import prisma from "../db/prisma";
+import prisma from "../db/prisma.js";
 
 export const generateAccessToken = async (userId: string, res: Response) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET!, {

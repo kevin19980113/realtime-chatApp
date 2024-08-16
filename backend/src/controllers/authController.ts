@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
-import prisma from "../db/prisma";
+import prisma from "../db/prisma.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { DecodedToken } from "../middleware/protectRoute";
+
+import { DecodedToken } from "../middleware/protectRoute.js";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../utils/generateToken";
+} from "../utils/generateToken.js";
 
 export const signup = async (req: Request, res: Response) => {
   try {

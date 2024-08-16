@@ -1,29 +1,24 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const auth_route_1 = __importDefault(require("./routes/auth.route"));
-const messages_route_1 = __importDefault(require("./routes/messages.route"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const socket_1 = require("./socket/socket");
-const path_1 = __importDefault(require("path"));
-dotenv_1.default.config();
+import express from "express";
+import authRoutes from "./routes/auth.route.js";
+import messageRoutes from "./routes/messages.route.js";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import { app, server } from "./socket/socket.js";
+import path from "path";
+dotenv.config();
 const PORT = process.env.PORT || 8000;
-const __dirname = path_1.default.resolve();
-socket_1.app.use(express_1.default.json());
-socket_1.app.use(express_1.default.urlencoded({ extended: true }));
-socket_1.app.use((0, cookie_parser_1.default)());
-socket_1.app.use("/api/auth", auth_route_1.default);
-socket_1.app.use("/api/messages", messages_route_1.default);
+const __dirname = path.resolve();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 if (process.env.NODE_ENV === "production") {
-    socket_1.app.use(express_1.default.static(path_1.default.join(__dirname, "/frontend/dist")));
-    socket_1.app.get("*", (req, res) => {
-        res.sendFile(path_1.default.join(__dirname, "frontend", "dist", "index.html"));
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
     });
 }
-socket_1.server.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log("Server is running on port " + PORT);
 });
