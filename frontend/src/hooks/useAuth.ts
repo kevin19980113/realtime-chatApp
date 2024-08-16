@@ -16,7 +16,7 @@ import {
 } from "../utils/refreshAccessToken";
 import useConversation from "./useConversations";
 
-export const REFRESH_THRESHOLD = 5 * 1000;
+export const REFRESH_THRESHOLD = 5 * 60 * 1000;
 
 type LoginMutationResultType = { fullName: string; accessToken: string };
 
