@@ -1,8 +1,14 @@
-import prisma from "../db/prisma.js";
-import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { generateAccessToken, generateRefreshToken, } from "../utils/generateToken.js";
-export const signup = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMe = exports.refresh = exports.logout = exports.login = exports.signup = void 0;
+const prisma_js_1 = __importDefault(require("../db/prisma.js"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const generateToken_js_1 = require("../utils/generateToken.js");
+const signup = async (req, res) => {
     try {
         const { fullName, username, password, confirmPassword, gender } = req.body;
         if (!fullName || !username || !password || !confirmPassword || !gender) {
@@ -16,15 +22,15 @@ export const signup = async (req, res) => {
         if (password !== confirmPassword) {
             return res.status(400).json({ error: "Passwords do not match." });
         }
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await prisma_js_1.default.user.findUnique({ where: { username } });
         if (user) {
             return res.status(400).json({ error: "Username already exists." });
         }
-        const salt = await bcryptjs.genSalt(10);
-        const hashedPassword = await bcryptjs.hash(password, salt);
+        const salt = await bcryptjs_1.default.genSalt(10);
+        const hashedPassword = await bcryptjs_1.default.hash(password, salt);
         const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
         const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-        const newUser = await prisma.user.create({
+        const newUser = await prisma_js_1.default.user.create({
             data: {
                 fullName,
                 username,
@@ -42,17 +48,18 @@ export const signup = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const login = async (req, res) => {
+exports.signup = signup;
+const login = async (req, res) => {
     try {
         const { username, password } = req.body;
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await prisma_js_1.default.user.findUnique({ where: { username } });
         if (!user)
             return res.status(400).json({ error: "No existing username" });
-        const isMatch = await bcryptjs.compare(password, user?.password);
+        const isMatch = await bcryptjs_1.default.compare(password, user?.password);
         if (!isMatch)
             return res.status(400).json({ error: "Invalid password" });
-        const accessToken = await generateAccessToken(user.id, res);
-        await generateRefreshToken(user.id, res);
+        const accessToken = await (0, generateToken_js_1.generateAccessToken)(user.id, res);
+        await (0, generateToken_js_1.generateRefreshToken)(user.id, res);
         res.status(200).json({
             fullName: user.fullName,
             accessToken,
@@ -63,13 +70,14 @@ export const login = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const logout = async (req, res) => {
+exports.login = login;
+const logout = async (req, res) => {
     try {
         const cookies = req.cookies;
         if (!cookies.jwt)
             return res.sendStatus(204);
         const refreshToken = cookies.jwt;
-        const user = await prisma.user.findFirst({
+        const user = await prisma_js_1.default.user.findFirst({
             where: { refreshToken },
         });
         if (!user) {
@@ -80,7 +88,7 @@ export const logout = async (req, res) => {
             });
             return res.sendStatus(204);
         }
-        await prisma.user.update({
+        await prisma_js_1.default.user.update({
             where: { id: user.id },
             data: { refreshToken: "" },
         });
@@ -96,22 +104,23 @@ export const logout = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const refresh = async (req, res) => {
+exports.logout = logout;
+const refresh = async (req, res) => {
     try {
         const cookies = req.cookies;
         if (!cookies.jwt)
             return res.status(401).json({ error: "NO JWT TOKEN" });
         const refreshToken = cookies.jwt;
-        const user = await prisma.user.findFirst({
+        const user = await prisma_js_1.default.user.findFirst({
             where: { refreshToken },
         });
         if (!user)
             return res.status(401).json({ error: "Invalid JWT Token" });
-        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
+        jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
             const decodedToken = decoded;
             if (err || decodedToken.userId !== user.id)
                 return res.status(401).json({ error: "Invalid JWT Token" });
-            const newAccessToken = await generateAccessToken(user.id, res);
+            const newAccessToken = await (0, generateToken_js_1.generateAccessToken)(user.id, res);
             return res.status(200).json({ accessToken: newAccessToken });
         });
     }
@@ -120,9 +129,10 @@ export const refresh = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const getMe = async (req, res) => {
+exports.refresh = refresh;
+const getMe = async (req, res) => {
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma_js_1.default.user.findUnique({
             where: { id: req.user.id },
         });
         if (!user)
@@ -140,3 +150,4 @@ export const getMe = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+exports.getMe = getMe;
