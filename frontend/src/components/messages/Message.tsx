@@ -1,11 +1,18 @@
-const Message = ({ message }: { message?: any }) => {
-  const fromMe = message.fromMe;
-  const chatClass = fromMe ? "chat-end" : "chat-start";
-  const img = fromMe
-    ? "https://avatar.iran.liara.run/public/boy?username=johndoe"
-    : "https://avatar.iran.liara.run/public/boy?username=janedoe";
+import useAuth from "../../hooks/useAuth";
+import useConversation from "../../hooks/useConversations";
+import { MessageType } from "../../types/ConversationType";
+import { timeFormatter } from "../../utils/timeformatter";
 
+const Message = ({ message }: { message: MessageType }) => {
+  const { getAuthUser } = useAuth();
+  const { data: authUser } = getAuthUser;
+  const { selectedConversation } = useConversation();
+
+  const fromMe = message?.senderId === authUser?.id;
+  const chatClass = fromMe ? "chat-end" : "chat-start";
+  const img = fromMe ? authUser?.profilePic : selectedConversation?.profilePic;
   const bubbleBg = fromMe ? "bg-blue-500" : "";
+
   return (
     <div className={`chat ${chatClass}`}>
       <div className="hidden md:block chat-image avatar">
@@ -14,10 +21,10 @@ const Message = ({ message }: { message?: any }) => {
         </div>
       </div>
       <p className={`chat-bubble text-white ${bubbleBg} text-sm md:text-md`}>
-        {message.body}
+        {message?.body}
       </p>
       <span className="chat-footer opacity-50 text-xs flex gap-1 items-center text-white">
-        22:59
+        {timeFormatter(message?.createdAt)}
       </span>
     </div>
   );

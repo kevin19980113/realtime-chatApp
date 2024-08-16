@@ -47,6 +47,8 @@ const useAuth = (): {
         latestAccessToken = await refreshAccessToken();
 
         if (latestAccessToken === "") return null;
+
+        await setAccessTokenAsync(latestAccessToken);
       } else if (isAccessTokenExpired(latestAccessToken)) {
         latestAccessToken = await refreshAccessToken();
 

@@ -5,7 +5,6 @@ import Login from "./pages/Login";
 import { Fragment, useEffect } from "react";
 import { Toaster } from "sonner";
 import useAuth, { REFRESH_THRESHOLD } from "./hooks/useAuth";
-import { LoaderCircle } from "lucide-react";
 import { isRefreshTokenExpired } from "./utils/refreshAccessToken";
 import NotFoundPage from "./pages/404page";
 
@@ -29,7 +28,7 @@ function App() {
   if (isLoading)
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        <LoaderCircle className="size-24 animate-spin" />
+        <span className="loading loading-spinner loading-lg" />
       </div>
     );
 

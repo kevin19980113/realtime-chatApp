@@ -37,5 +37,10 @@ export const loginSchema = z.object({
   }),
 });
 
+export const sendMessageSchema = z.object({
+  message: z.string(),
+});
+
 export type signupSchemaType = z.infer<typeof signupSchema>;
 export type loginSchemaType = z.infer<typeof loginSchema>;
+export type sendMessageSchemaType = z.infer<typeof sendMessageSchema>;
