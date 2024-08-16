@@ -1,16 +1,23 @@
-import jwt from "jsonwebtoken";
-import prisma from "../db/prisma.js";
-export const generateAccessToken = async (userId, res) => {
-    const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateRefreshToken = exports.generateAccessToken = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const prisma_js_1 = __importDefault(require("../db/prisma.js"));
+const generateAccessToken = async (userId, res) => {
+    const accessToken = jsonwebtoken_1.default.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: "1h",
     });
     return accessToken;
 };
-export const generateRefreshToken = async (userId, res) => {
-    const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
+exports.generateAccessToken = generateAccessToken;
+const generateRefreshToken = async (userId, res) => {
+    const refreshToken = jsonwebtoken_1.default.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: "7d",
     });
-    await prisma.user.update({
+    await prisma_js_1.default.user.update({
         where: { id: userId },
         data: { refreshToken },
     });
@@ -21,3 +28,4 @@ export const generateRefreshToken = async (userId, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
+exports.generateRefreshToken = generateRefreshToken;

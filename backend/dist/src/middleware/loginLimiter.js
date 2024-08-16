@@ -1,6 +1,11 @@
-import rateLimit from "express-rate-limit";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 // rate limiter for login attempts
-const loginLimiter = rateLimit({
+const loginLimiter = (0, express_rate_limit_1.default)({
     windowMs: 60 * 1000, // 1 minute
     max: 5, // Limit each IP to 5 login requests per minute
     message: {
@@ -13,4 +18,4 @@ const loginLimiter = rateLimit({
     standardHeaders: true, // enable RateLimit-* headers in the response, which provide info about the rate limit
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
-export default loginLimiter;
+exports.default = loginLimiter;

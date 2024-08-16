@@ -1,11 +1,17 @@
-import prisma from "../db/prisma.js";
-import { getReveiverSocketId, io } from "../socket/socket.js";
-export const sendMessage = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUsersForSidebar = exports.getMessages = exports.sendMessage = void 0;
+const prisma_js_1 = __importDefault(require("../db/prisma.js"));
+const socket_js_1 = require("../socket/socket.js");
+const sendMessage = async (req, res) => {
     try {
         const { message } = req.body;
         const { id: receiverId } = req.params;
         const senderId = req.user.id;
-        let conversation = await prisma.conversation.findFirst({
+        let conversation = await prisma_js_1.default.conversation.findFirst({
             where: {
                 participantIds: {
                     hasEvery: [senderId, receiverId],
@@ -14,7 +20,7 @@ export const sendMessage = async (req, res) => {
         });
         // sending message to receiver for the first time
         if (!conversation) {
-            conversation = await prisma.conversation.create({
+            conversation = await prisma_js_1.default.conversation.create({
                 data: {
                     participantIds: {
                         set: [senderId, receiverId],
@@ -22,7 +28,7 @@ export const sendMessage = async (req, res) => {
                 },
             });
         }
-        const newMessage = await prisma.message.create({
+        const newMessage = await prisma_js_1.default.message.create({
             data: {
                 senderId,
                 conversationId: conversation.id,
@@ -30,7 +36,7 @@ export const sendMessage = async (req, res) => {
             },
         });
         if (newMessage) {
-            conversation = await prisma.conversation.update({
+            conversation = await prisma_js_1.default.conversation.update({
                 where: {
                     id: conversation.id,
                 },
@@ -43,11 +49,11 @@ export const sendMessage = async (req, res) => {
                 },
             });
         }
-        const receiverSocketId = getReveiverSocketId(receiverId);
+        const receiverSocketId = (0, socket_js_1.getReveiverSocketId)(receiverId);
         // if it's not undeifined, that means the receiver is online
         // then emit event which has new message to the receiver's socket
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("newMessage", newMessage);
+            socket_js_1.io.to(receiverSocketId).emit("newMessage", newMessage);
         }
         res.status(201).json(newMessage);
     }
@@ -56,11 +62,12 @@ export const sendMessage = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const getMessages = async (req, res) => {
+exports.sendMessage = sendMessage;
+const getMessages = async (req, res) => {
     try {
         const { id: userToChatId } = req.params;
         const senderId = req.user.id;
-        const conversation = await prisma.conversation.findFirst({
+        const conversation = await prisma_js_1.default.conversation.findFirst({
             where: {
                 participantIds: {
                     hasEvery: [senderId, userToChatId],
@@ -83,10 +90,11 @@ export const getMessages = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-export const getUsersForSidebar = async (req, res) => {
+exports.getMessages = getMessages;
+const getUsersForSidebar = async (req, res) => {
     try {
         const authUserId = req.user.id;
-        const otherUsers = await prisma.user.findMany({
+        const otherUsers = await prisma_js_1.default.user.findMany({
             where: {
                 id: {
                     not: authUserId,
@@ -105,3 +113,4 @@ export const getUsersForSidebar = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+exports.getUsersForSidebar = getUsersForSidebar;
