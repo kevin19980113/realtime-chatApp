@@ -9,12 +9,6 @@ const useListenMessages = () => {
 
   useEffect(() => {
     socket?.on("newMessage", (newMessage: MessageType) => {
-      console.log("New Message Received from:", newMessage.senderId);
-      console.log(
-        "current Conversation ID:",
-        selectedConversation?.fullName,
-        selectedConversation?.id
-      );
       if (newMessage.senderId === selectedConversation?.id) {
         newMessage.isNew = true;
         setMessages([...messages, newMessage]);
