@@ -14,6 +14,7 @@ import {
   isAccessTokenExpired,
   refreshAccessToken,
 } from "../utils/refreshAccessToken";
+import useConversation from "./useConversations";
 
 export const REFRESH_THRESHOLD = 5 * 1000;
 
@@ -26,6 +27,7 @@ const useAuth = (): {
   signup: UseMutationResult<void, Error, signupSchemaType>;
 } => {
   const { accessToken, setAccessToken } = useToken();
+  const { setSelectedConversation, setMessages } = useConversation();
   const queryClient = useQueryClient();
 
   const setAccessTokenAsync = useCallback(
@@ -116,6 +118,8 @@ const useAuth = (): {
     },
     onSuccess: async (data: { fullName: string }) => {
       await setAccessTokenAsync("");
+      setSelectedConversation(null);
+      setMessages([]);
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
       if (data) return toast.success(`Goodbye, ${data.fullName}!`);
